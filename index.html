@@ -1,11 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
-    <title>trace 1</title>
+    <title>trace 1 - Biometric Face Recognition</title>
+
+    <!-- Real Biometric Face Recognition Library (TensorFlow.js backend) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
     <style>
         * {
@@ -14,867 +17,419 @@
             padding: 0;
             font-family: Arial, Helvetica, sans-serif;
         }
-        
+
         body {
-            background-image: url('https://images.unsplash.com/photo-1422493757035-1e5e03968f95?q=80&w=1408&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-color: #0f172a;
             color: #e5e7eb;
-            background-size: 1700px;
+            min-height: 100vh;
         }
-        
+
         .app {
             display: flex;
             min-height: 100vh;
         }
+
         /* SIDEBAR */
-        
         .sidebar {
             width: 250px;
             background: #111827;
-            border-right: 1px solid #263244;
+            border-right: 1px solid #1f2937;
             padding: 24px 16px;
             position: fixed;
             height: 100vh;
-            left: 0;
-            top: 0;
+            overflow-y: auto;
         }
-        
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
+
+        .sidebar h2 {
+            font-size: 1.25rem;
             color: #38bdf8;
-            margin-bottom: 35px;
-            padding: 0 10px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        
-        .logo span {
-            color: white;
-        }
-        
-        .nav button {
+
+        .nav-btn {
             width: 100%;
-            padding: 13px 15px;
+            padding: 12px;
             margin-bottom: 8px;
-            border: none;
             background: transparent;
+            border: 1px solid transparent;
             color: #9ca3af;
             text-align: left;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
         }
-        
-        .nav button:hover,
-        .nav button.active {
+
+        .nav-btn:hover, .nav-btn.active {
             background: #1e293b;
             color: #38bdf8;
+            border-color: #334155;
         }
-        /* MAIN */
-        
-        .main {
+
+        /* MAIN CONTENT AREA */
+        .main-content {
             margin-left: 250px;
-            width: calc(100% - 250px);
-            padding: 25px;
+            flex: 1;
+            padding: 32px;
         }
-        
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        
-        .topbar h1 {
-            font-size: 25px;
-        }
-        
-        .status {
-            background: #052e16;
-            color: #4ade80;
-            border: 1px solid #166534;
-            padding: 8px 13px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-        /* CARDS */
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 25px;
-        }
-        
-        .stat-card {
-            background: #111827;
-            border: 1px solid #263244;
-            border-radius: 12px;
-            padding: 20px;
-        }
-        
-        .stat-card .number {
-            font-size: 28px;
-            font-weight: bold;
-            margin: 8px 0;
-        }
-        
-        .stat-card small {
-            color: #9ca3af;
-        }
-        /* SECTIONS */
-        
+
         .section {
             display: none;
         }
-        
+
         .section.active {
             display: block;
         }
-        
+
         .card {
-            background: #3a3c5e;
-            border: 1px solid #263244;
-            border-radius: 12px;
-            padding: 22px;
-            margin-bottom: 20px;
-        }
-        
-        .card h2 {
-            margin-bottom: 18px;
-            font-size: 18px;
-        }
-        /* FORM */
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-        }
-        
-        .form-group.full {
-            grid-column: 1 / -1;
-        }
-        
-        label {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        
-        input,
-        textarea,
-        select {
-            width: 100%;
-            padding: 12px;
-            background: #f19f06;
+            background: #1e293b;
             border: 1px solid #334155;
-            border-radius: 7px;
-            color: rgb(17, 3, 3);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            margin-bottom: 16px;
+            color: #f8fafc;
+        }
+
+        /* INPUTS & BUTTONS */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #fff;
             outline: none;
         }
-        
-        input:focus,
-        textarea:focus,
-        select:focus {
-            border-color: #38bdf8;
-        }
-        
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
+
         .btn {
+            background: #0284c7;
+            color: #fff;
             border: none;
-            padding: 11px 17px;
-            border-radius: 7px;
+            padding: 10px 18px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            margin-top: 15px;
+            transition: background 0.2s;
         }
-        
-        .btn-primary {
-            background: #0284c7;
-            color: white;
-        }
-        
-        .btn-primary:hover {
+
+        .btn:hover {
             background: #0369a1;
         }
-        
-        .btn-danger {
-            background: #7f1d1d;
-            color: white;
-        }
-        /* TABLE */
-        
-        .table-container {
-            overflow-x: auto;
-        }
-        
-        table {
+
+        /* CCTV & BIOMETRIC CANVAS CONTAINER */
+        .video-container {
+            position: relative;
             width: 100%;
-            border-collapse: collapse;
+            max-width: 720px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 16px;
         }
-        
-        th,
-        td {
-            padding: 13px;
-            text-align: left;
-            border-bottom: 1px solid #263244;
-            font-size: 13px;
-        }
-        
-        th {
-            color: #94a3b8;
-            font-weight: normal;
-        }
-        
-        .person-photo {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #334155;
-        }
-        
-        .badge {
-            padding: 5px 9px;
-            border-radius: 12px;
-            font-size: 11px;
-        }
-        
-        .badge-green {
-            background: #052e16;
-            color: #4ade80;
-        }
-        
-        .badge-yellow {
-            background: #422006;
-            color: #facc15;
-        }
-        
-        .badge-blue {
-            background: #0c4a6e;
-            color: #38bdf8;
-        }
-        /* CCTV */
-        
-        .upload-area {
-            border: 2px dashed #334155;
-            border-radius: 12px;
-            padding: 45px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .upload-area:hover {
-            border-color: #38bdf8;
-            background: #0f172a;
-        }
-        
-        .upload-icon {
-            font-size: 42px;
-            margin-bottom: 12px;
-        }
-        
+
         video {
             width: 100%;
-            max-height: 450px;
-            background: black;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
+            display: block;
         }
-        
-        .analysis-box {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 10px;
-            background: #0f172a;
-            border: 1px solid #334155;
-        }
-        
-        .progress {
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 10px;
-            background: #1e293b;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-        
-        .progress-bar {
             height: 100%;
-            width: 0;
-            background: #38bdf8;
-            transition: width 0.5s;
+            pointer-events: none;
         }
-        
+
+        .status-box {
+            margin-top: 12px;
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #38bdf8;
+            font-size: 0.9rem;
+        }
+
+        /* MATCH RESULTS CARD */
         .match-card {
             display: flex;
-            gap: 15px;
+            gap: 16px;
             align-items: center;
-            padding: 15px;
-            background: #111827;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            margin-top: 15px;
+            background: #0f172a;
+            border: 1px solid #0284c7;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 16px;
         }
-        
+
         .match-card img {
-            width: 70px;
-            height: 70px;
-            border-radius: 8px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #38bdf8;
         }
-        
+
         .confidence {
             color: #4ade80;
             font-weight: bold;
-        }
-        
-        .warning {
-            background: #422006;
-            border: 1px solid #92400e;
-            color: #fde68a;
-            padding: 13px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-        /* RESPONSIVE */
-        
-        @media(max-width: 900px) {
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media(max-width: 650px) {
-            .sidebar {
-                width: 70px;
-            }
-            .logo {
-                font-size: 0;
-            }
-            .logo::after {
-                content: "ID";
-                font-size: 20px;
-            }
-            .nav button {
-                font-size: 0;
-                text-align: center;
-            }
-            .nav button::first-letter {
-                font-size: 18px;
-            }
-            .main {
-                margin-left: 70px;
-                width: calc(100% - 70px);
-                padding: 15px;
-            }
-            .stats {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 
 <body>
-
     <div class="app">
+        <!-- NAVIGATION SIDEBAR -->
+        <div class="sidebar">
+            <h2>Trace 1</h2>
+            <button class="nav-btn active" onclick="switchTab('cctvTab', this)">Biometric Scanner</button>
+            <button class="nav-btn" onclick="switchTab('databaseTab', this)">Person Database</button>
+        </div>
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="logo">
-                Secure<span>Trace</span>
-            </div>
-
-            <div class="nav">
-                <button class="active" onclick="showSection('dashboard', this)">
-                🏠 Dashboard
-            </button>
-
-                <button onclick="showSection('people', this)">
-                👤 kiriani Database
-            </button>
-
-                <button onclick="showSection('cctv', this)">
-                🎥 CCTV Analysis
-            </button>
-
-                <button onclick="showSection('cases', this)">
-                📁 Cases
-            </button>
-
-                <button onclick="showSection('settings', this)">
-                ⚙️ Settings & Station
-            </button>
-            </div>
-        </aside>
-
-        <!-- MAIN -->
-        <main class="main">
-            <div class="topbar">
-                <h1 id="pageTitle">Dashboard</h1>
-                <div class="status">🌏kiriani online database🌏</div>
-            </div>
-
-            <!-- DASHBOARD -->
-            <section id="dashboard" class="section active">
-                <div class="stats">
-                    <div class="stat-card">
-                        <small>Registered People</small>
-                        <div class="number" id="peopleCount">0</div>
-                        <small>Total school records</small>
-                    </div>
-
-                    <div class="stat-card">
-                        <small>Active streams</small>
-                        <div class="number" id="stationCount">4</div>
-                        <small>Connected classes</small>
-                    </div>
-
-                    <div class="stat-card">
-                        <small>Cases</small>
-                        <div class="number" id="caseCount">0</div>
-                        <small>Investigation records</small>
-                    </div>
-
-                    <div class="stat-card">
-                        <small>System Status</small>
-                        <div class="number">OK</div>
-                        <small>Database synced</small>
-                    </div>
-                </div>
-
+        <!-- MAIN CONTENT AREA -->
+        <div class="main-content">
+            <!-- BIOMETRIC CCTV SCANNER TAB -->
+            <div id="cctvTab" class="section active">
                 <div class="card">
-                    <h2>System Overview</h2>
-                    <p style="color:#bcb6bd; line-height:1.7;">
-                        Centralized identity network. Registrations submitted by database admin are tagged with their station location and syncing live to the unified database.
+                    <h3>Real-Time Biometric Video Scanner</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">
+                        Upload a video file containing clear faces. The AI scanner detects facial landmarks in real time and computes 128-d biometric signatures to match against the person database.
                     </p>
-                </div>
-            </section>
+                    
+                    <div class="input-group" style="margin-top: 16px;">
+                        <label>Select CCTV Video File</label>
+                        <input type="file" id="videoInput" accept="video/*" onchange="loadVideo(event)">
+                    </div>
 
-            <!-- PEOPLE -->
-            <section id="people" class="section">
+                    <div class="video-container">
+                        <video id="cctvVideo" controls onplay="startBiometricTracking()"></video>
+                        <canvas id="cctvCanvas"></canvas>
+                    </div>
+
+                    <div class="status-box" id="analysisStatus">Initializing Biometric Engine...</div>
+
+                    <button class="btn" style="margin-top: 16px;" onclick="runDemoAnalysis()">Match Frame Against Database</button>
+
+                    <div id="matchResults"></div>
+                </div>
+            </div>
+
+            <!-- DATABASE TAB -->
+            <div id="databaseTab" class="section">
                 <div class="card">
-                    <h2>Register stundents</h2>
-
-                    <form id="personForm">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Station Location</label>
-                                <select id="stationSelect" required>
-                                <option value="Station Alpha - Central">form four</option>
-                                <option value="Station Beta - North">form three</option>
-                                <option value="Station Gamma - South">form two</option>
-                                <option value="Station Delta - East">form one</option>
-                            </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>database admin  Name / ID</label>
-                                <input id="chiefName" required placeholder="database admin name">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Full Name</label>
-                                <input id="personName" required placeholder="Enter full name">
-                            </div>
-
-                            <div class="form-group">
-                                <label>ID / National Card Number</label>
-                                <input id="personId" required placeholder="Enter school ID number">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Date of birth </label>
-                                <input type="date" id="personDob">
-                            </div>
-
-                            <div class="form-group">
-                                <label>admission No</label>
-                                <input id="personPhone" placeholder="admission number">
-                            </div>
-
-                            <div class="form-group full">
-                                <label>Registered Photo</label>
-                                <input type="file" id="personPhoto" accept="image/*">
-                            </div>
-
-                            <div class="form-group full">
-                                <label>Additional Information</label>
-                                <textarea id="personNotes" placeholder="Additional authorized information"></textarea>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary" type="submit">
-                        + Register Person to Central Database
-                    </button>
-                    </form>
-                </div>
-
-                <div class="card">
-                    <h2>kiriani Database Records</h2>
-
-                    <input id="searchPeople" placeholder="Search by name, ID, station, or Chief..." oninput="renderPeople()" style="margin-bottom:20px;">
-
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Photo</th>
-                                    <th>Name</th>
-                                    <th>ID Number</th>
-                                    <th>Station</th>
-                                    <th>Registered By (Chief)</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="peopleTable"></tbody>
-                        </table>
+                    <h3>Register Person Profile</h3>
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="personName" placeholder="e.g. John Doe">
                     </div>
-                </div>
-            </section>
-
-            <!-- CCTV -->
-            <section id="cctv" class="section">
-                <div class="warning">
-                    ⚠️ CCTV face matching uses live kiriani boys database records for candidate verification.
-                </div>
-
-                <div class="card">
-                    <h2>CCTV Evidence</h2>
-                    <div class="upload-area" onclick="document.getElementById('videoInput').click()">
-                        <div class="upload-icon">🎥</div>
-                        <h3>Upload CCTV Video</h3>
-                        <p style="color:#356bb6; margin-top:8px;">MP4, WebM or other supported format</p>
-                        <input type="file" id="videoInput" accept="video/*" hidden onchange="loadVideo(event)">
+                    <div class="input-group">
+                        <label>ID / Card Number</label>
+                        <input type="text" id="cardId" placeholder="e.g. ID-90210">
                     </div>
-
-                    <video id="cctvVideo" controls></video>
-
-                    <div id="analysisBox" class="analysis-box">
-                        <h3>Analysis</h3>
-                        <p id="analysisStatus" style="color:#94a3b8; margin-top:10px;">Ready.</p>
-                        <div class="progress">
-                            <div class="progress-bar" id="progressBar"></div>
-                        </div>
-                        <button class="btn btn-primary" onclick="runDemoAnalysis()">Start Analysis</button>
-                        <div id="matchResults"></div>
+                    <div class="input-group">
+                        <label>Station / Class</label>
+                        <input type="text" id="station" placeholder="e.g. Station A">
                     </div>
+                    <div class="input-group">
+                        <label>Clear Face Photo</label>
+                        <input type="file" id="personPhoto" accept="image/*">
+                    </div>
+                    <button class="btn" onclick="addPerson()">Save Biometric Record</button>
                 </div>
-            </section>
-
-            <!-- CASES -->
-            <section id="cases" class="section">
-                <div class="card">
-                    <h2>Create Investigation Case</h2>
-                    <form id="caseForm">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Case Number</label>
-                                <input id="caseNumber" required placeholder="CASE-001">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Incident Date</label>
-                                <input type="date" id="caseDate" required>
-                            </div>
-
-                            <div class="form-group full">
-                                <label>Incident Location</label>
-                                <input id="caseLocation" placeholder="Location">
-                            </div>
-
-                            <div class="form-group full">
-                                <label>Description</label>
-                                <textarea id="caseDescription" placeholder="Case description"></textarea>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary">Create Case</button>
-                    </form>
-                </div>
-
-                <div class="card">
-                    <h2>Investigation Cases</h2>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Case</th>
-                                    <th>Date</th>
-                                    <th>Location</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="casesTable"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SETTINGS -->
-            <section id="settings" class="section">
-                <div class="card">
-                    <h2>school configuration</h2>
-                    <div class="form-group">
-                        <label>school  Name</label>
-                        <input id="currentStation" value="Station Alpha - Central">
-                    </div>
-                    <br>
-                    <div class="form-group">
-                        <label>school database  in Charge</label>
-                        <input id="currentChief" value="Chief John Doe">
-                    </div>
-                    <br>
-                    <div class="form-group">
-                        <label>kiriani API Server URL</label>
-                        <input value="https://api.central-database.gov/v1">
-                    </div>
-                    <button class="btn btn-primary">Save school Settings</button>
-                </div>
-            </section>
-        </main>
+            </div>
+        </div>
     </div>
 
     <script>
-        let people = JSON.parse(localStorage.getItem("people")) || [];
-        let cases = JSON.parse(localStorage.getItem("cases")) || [];
-
-        // NAVIGATION
-        function showSection(id, button) {
-            document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-            document.getElementById(id).classList.add("active");
-            document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
-            button.classList.add("active");
-
-            const titles = {
-                dashboard: "Dashboard",
-                people: "People Central Database",
-                cctv: "CCTV Analysis",
-                cases: "Investigation Cases",
-                settings: "Settings & Station"
-            };
-
-            document.getElementById("pageTitle").textContent = titles[id];
+        // Tab Switcher
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
         }
 
-        // REGISTER PERSON WITH STATION & CHIEF METADATA
-        document.getElementById("personForm").addEventListener("submit", function(e) {
-            e.preventDefault();
+        // Mock/Local Storage Database
+        let people = JSON.parse(localStorage.getItem('trace_people') || '[]');
 
-            const station = document.getElementById("stationSelect").value;
-            const chief = document.getElementById("chiefName").value;
-            const name = document.getElementById("personName").value;
-            const id = document.getElementById("personId").value;
-            const dob = document.getElementById("personDob").value;
-            const phone = document.getElementById("personPhone").value;
-            const notes = document.getElementById("personNotes").value;
-            const photoInput = document.getElementById("personPhoto");
+        function addPerson() {
+            const name = document.getElementById('personName').value;
+            const cardId = document.getElementById('cardId').value;
+            const station = document.getElementById('station').value;
+            const photoInput = document.getElementById('personPhoto');
 
-            if (photoInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    createPerson(station, chief, name, id, dob, phone, notes, event.target.result);
-                };
-                reader.readAsDataURL(photoInput.files[0]);
-            } else {
-                createPerson(station, chief, name, id, dob, phone, notes, "");
+            if (!name || !photoInput.files[0]) {
+                alert('Please fill name and provide a face photo.');
+                return;
             }
-        });
 
-        function createPerson(station, chief, name, id, dob, phone, notes, photo) {
-            const person = {
-                id: Date.now(),
-                station,
-                chief,
-                name,
-                cardId: id,
-                dob,
-                phone,
-                notes,
-                photo
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                people.push({
+                    name: name,
+                    cardId: cardId,
+                    station: station,
+                    photo: e.target.result
+                });
+                localStorage.setItem('trace_people', JSON.stringify(people));
+                alert('Person registered successfully.');
+                document.getElementById('personName').value = '';
+                document.getElementById('cardId').value = '';
+                document.getElementById('station').value = '';
+                photoInput.value = '';
             };
-
-            people.push(person);
-            localStorage.setItem("people", JSON.stringify(people));
-
-            document.getElementById("personForm").reset();
-            renderPeople();
-            updateDashboard();
-
-            alert(`Person registered to central database from ${station}.`);
+            reader.readAsDataURL(photoInput.files[0]);
         }
 
-        function renderPeople() {
-            const table = document.getElementById("peopleTable");
-            const search = document.getElementById("searchPeople").value.toLowerCase();
-            table.innerHTML = "";
-
-            const filtered = people.filter(p =>
-                p.name.toLowerCase().includes(search) ||
-                p.cardId.toLowerCase().includes(search) ||
-                p.station.toLowerCase().includes(search) ||
-                p.chief.toLowerCase().includes(search)
-            );
-
-            filtered.forEach(p => {
-                        const row = document.createElement("tr");
-                        row.innerHTML = `
-            <td>
-                ${p.photo ? `<img class="person-photo" src="${p.photo}">` : `<div class="person-photo"></div>`}
-            </td>
-            <td>${escapeHTML(p.name)}</td>
-            <td>${escapeHTML(p.cardId)}</td>
-            <td><span class="badge badge-blue">${escapeHTML(p.station)}</span></td>
-            <td>${escapeHTML(p.chief)}</td>
-            <td>
-                <button class="btn btn-danger" onclick="deletePerson(${p.id})">Delete</button>
-            </td>
-        `;
-        table.appendChild(row);
-    });
-}
-
-function deletePerson(id) {
-    if (!confirm("Delete this record from central database?")) return;
-    people = people.filter(p => p.id !== id);
-    localStorage.setItem("people", JSON.stringify(people));
-    renderPeople();
-    updateDashboard();
-}
-
-// CCTV
-function loadVideo(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const video = document.getElementById("cctvVideo");
-    video.src = URL.createObjectURL(file);
-    video.style.display = "block";
-    document.getElementById("analysisBox").style.display = "block";
-    document.getElementById("analysisStatus").textContent = "Video loaded. Ready for central DB query.";
-}
-
-function runDemoAnalysis() {
-    const progress = document.getElementById("progressBar");
-    const status = document.getElementById("analysisStatus");
-    const results = document.getElementById("matchResults");
-
-    results.innerHTML = "";
-    progress.style.width = "0%";
-    let value = 0;
-
-    const interval = setInterval(() => {
-        value += 10;
-        progress.style.width = value + "%";
-        status.textContent = "Searching central DB... " + value + "%";
-
-        if (value >= 100) {
-            clearInterval(interval);
-            status.textContent = "Analysis complete — match found in central records.";
-            showDemoMatches();
+        function escapeHTML(str) {
+            return str ? str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            ) : '';
         }
-    }, 200);
-}
 
-function showDemoMatches() {
-    const results = document.getElementById("matchResults");
-    if (people.length === 0) {
-        results.innerHTML = `
-            <div class="match-card">
-                <div>
-                    <strong>No records in Central Database</strong>
-                    <p style="color:#94a3b8;margin-top:5px;">
-                        Have local chiefs register citizens to enable CCTV matching.
-                    </p>
-                </div>
-            </div>
-        `;
-        return;
-    }
+        // BIOMETRIC RECOGNITION ENGINE
+        let faceModelsLoaded = false;
 
-    const person = people[Math.floor(Math.random() * people.length)];
+        async function loadBiometricModels() {
+            const status = document.getElementById("analysisStatus");
+            status.textContent = "Loading biometric AI models (SSD MobileNet V1 & Landmark68)...";
 
-    results.innerHTML = `
-        <div class="match-card">
-            ${person.photo ? `<img src="${person.photo}">` : `<div class="person-photo"></div>`}
-            <div>
-                <strong>Central Database Match</strong>
-                <p style="margin-top:5px;">${escapeHTML(person.name)}</p>
-                <p style="color:#94a3b8;margin-top:4px;">ID: ${escapeHTML(person.cardId)}</p>
-                <p style="color:#38bdf8;margin-top:4px;">Registered at: ${escapeHTML(person.station)} (${escapeHTML(person.chief)})</p>
-                <p class="confidence" style="margin-top:7px;">Similarity: 92%</p>
-            </div>
-        </div>
-    `;
-}
+            try {
+                // Pre-trained face recognition weights hosted on GitHub CDN
+                const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+                await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
 
-// CASES
-document.getElementById("caseForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const newCase = {
-        id: Date.now(),
-        number: document.getElementById("caseNumber").value,
-        date: document.getElementById("caseDate").value,
-        location: document.getElementById("caseLocation").value,
-        description: document.getElementById("caseDescription").value,
-        status: "Open"
-    };
+                faceModelsLoaded = true;
+                status.textContent = "Biometric AI models loaded. Upload video to begin tracking.";
+            } catch (err) {
+                status.textContent = "Error loading AI models. Ensure internet connection is active.";
+                console.error(err);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', loadBiometricModels);
 
-    cases.push(newCase);
-    localStorage.setItem("cases", JSON.stringify(cases));
-    this.reset();
-    renderCases();
-    updateDashboard();
-});
+        function loadVideo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-function renderCases() {
-    const table = document.getElementById("casesTable");
-    table.innerHTML = "";
-    cases.forEach(item => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${escapeHTML(item.number)}</td>
-            <td>${escapeHTML(item.date)}</td>
-            <td>${escapeHTML(item.location)}</td>
-            <td>${escapeHTML(item.description)}</td>
-            <td><span class="badge badge-green">${escapeHTML(item.status)}</span></td>
-        `;
-        table.appendChild(row);
-    });
-}
+            const video = document.getElementById("cctvVideo");
+            video.src = URL.createObjectURL(file);
+        }
 
-function updateDashboard() {
-    document.getElementById("peopleCount").textContent = people.length;
-    document.getElementById("caseCount").textContent = cases.length;
-}
+        async function startBiometricTracking() {
+            if (!faceModelsLoaded) return;
 
-function escapeHTML(str) {
-    if (!str) return "";
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
+            const video = document.getElementById("cctvVideo");
+            const canvas = document.getElementById("cctvCanvas");
 
-renderPeople();
-renderCases();
-updateDashboard();
+            const displaySize = { width: video.clientWidth, height: video.clientHeight };
+            faceapi.matchDimensions(canvas, displaySize);
+
+            setInterval(async () => {
+                if (video.paused || video.ended) return;
+
+                // Detect faces, extract 68 landmarks, compute 128-d descriptor vectors
+                const detections = await faceapi.detectAllFaces(video)
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
+
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw bounding box & facial mesh over video stream
+                faceapi.draw.drawDetections(canvas, resizedDetections);
+                faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+            }, 100);
+        }
+
+        async function runDemoAnalysis() {
+            const status = document.getElementById("analysisStatus");
+            const results = document.getElementById("matchResults");
+            results.innerHTML = "";
+
+            if (!people || people.length === 0) {
+                status.textContent = "No profiles found in database. Register a person first.";
+                return;
+            }
+
+            status.textContent = "Scanning frame for biometric facial features...";
+
+            const video = document.getElementById("cctvVideo");
+            const videoDetection = await faceapi.detectSingleFace(video)
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+
+            if (!videoDetection) {
+                status.textContent = "No visible face detected in current frame. Pause video on a clear face.";
+                return;
+            }
+
+            status.textContent = "Comparing 128-dimensional biometric vectors against database...";
+
+            let bestMatch = null;
+            let lowestDistance = 1.0; // Distance thresholds < 0.6 indicate match
+
+            for (const person of people) {
+                if (!person.photo) continue;
+
+                const img = await faceapi.fetchImage(person.photo);
+                const dbDetection = await faceapi.detectSingleFace(img)
+                    .withFaceLandmarks()
+                    .withFaceDescriptor();
+
+                if (dbDetection) {
+                    // Compute Euclidean Distance between facial descriptor vectors
+                    const distance = faceapi.euclideanDistance(videoDetection.descriptor, dbDetection.descriptor);
+                    if (distance < lowestDistance) {
+                        lowestDistance = distance;
+                        bestMatch = { person, distance };
+                    }
+                }
+            }
+
+            if (bestMatch && lowestDistance < 0.6) {
+                const matchPercent = Math.round((1 - lowestDistance) * 100);
+                status.textContent = `Biometric match identified! Match Confidence: ${matchPercent}%`;
+
+                results.innerHTML = `
+                    <div class="match-card">
+                        ${bestMatch.person.photo ? `<img src="${bestMatch.person.photo}">` : ``}
+                        <div>
+                            <strong style="color: #38bdf8;">Biometric Identity Match</strong>
+                            <p style="margin-top: 4px;">Name: ${escapeHTML(bestMatch.person.name)}</p>
+                            <p style="color: #94a3b8; margin-top: 2px;">ID: ${escapeHTML(bestMatch.person.cardId)}</p>
+                            <p style="color: #94a3b8; margin-top: 2px;">Station/Class: ${escapeHTML(bestMatch.person.station)}</p>
+                            <p class="confidence" style="margin-top: 6px;">Biometric Distance: ${lowestDistance.toFixed(3)} (${matchPercent}% Match)</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                status.textContent = "Biometric comparison complete: No matching profile found in database.";
+            }
+        }
     </script>
-
 </body>
 
 </html>
