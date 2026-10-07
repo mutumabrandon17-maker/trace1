@@ -1,435 +1,4171 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
-    <title>trace 1 - Biometric Face Recognitions</title>
 
-    <!-- Real Biometric Face Recognition Library (TensorFlow.js backend) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<meta charset="UTF-8">
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, Helvetica, sans-serif;
-        }
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-        body {
-            background-color: #0f172a;
-            color: #e5e7eb;
-            min-height: 100vh;
-        }
+<title>TRACE 1 | Biometric Security System</title>
 
-        .app {
-            display: flex;
-            min-height: 100vh;
-        }
 
-        /* SIDEBAR */
-        .sidebar {
-            width: 250px;
-            background: #111827;
-            border-right: 1px solid #1f2937;
-            padding: 24px 16px;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-        }
+<!-- FACE RECOGNITION -->
 
-        .sidebar h2 {
-            font-size: 1.25rem;
-            color: #38bdf8;
-            margin-bottom: 24px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
 
-        .nav-btn {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 8px;
-            background: transparent;
-            border: 1px solid transparent;
-            color: #9ca3af;
-            text-align: left;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-        }
 
-        .nav-btn:hover, .nav-btn.active {
-            background: #1e293b;
-            color: #38bdf8;
-            border-color: #334155;
-        }
+<!-- LEAFLET MAP -->
 
-        /* MAIN CONTENT AREA */
-        .main-content {
-            margin-left: 250px;
-            flex: 1;
-            padding: 32px;
-        }
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
-        .section {
-            display: none;
-        }
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
 
-        .section.active {
-            display: block;
-        }
 
-        .card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
+<style>
 
-        .card h3 {
-            margin-bottom: 16px;
-            color: #f8fafc;
-        }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        /* INPUTS & BUTTONS */
-        .input-group {
-            margin-bottom: 16px;
-        }
+body {
 
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.85rem;
-            color: #94a3b8;
-        }
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 10px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            color: #fff;
-            outline: none;
-        }
+    background: #050b14;
 
-        .btn {
-            background: #0284c7;
-            color: #fff;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
+    color: #e8f3ff;
 
-        .btn:hover {
-            background: #0369a1;
-        }
+    min-height: 100vh;
 
-        /* CCTV & BIOMETRIC CANVAS CONTAINER */
-        .video-container {
-            position: relative;
-            width: 100%;
-            max-width: 720px;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-top: 16px;
-        }
+}
 
-        video {
-            width: 100%;
-            display: block;
-        }
 
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
+/* =====================================================
+   LOGIN / REGISTER
+===================================================== */
 
-        .status-box {
-            margin-top: 12px;
-            padding: 10px;
-            background: #0f172a;
-            border-radius: 4px;
-            font-family: monospace;
-            color: #38bdf8;
-            font-size: 0.9rem;
-        }
+#authScreen {
 
-        /* MATCH RESULTS CARD */
-        .match-card {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            background: #0f172a;
-            border: 1px solid #0284c7;
-            padding: 16px;
-            border-radius: 6px;
-            margin-top: 16px;
-        }
+    min-height: 100vh;
 
-        .match-card img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid #38bdf8;
-        }
+    display: flex;
 
-        .confidence {
-            color: #4ade80;
-            font-weight: bold;
-        }
-    </style>
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #102946 0%,
+            #050b14 65%
+        );
+
+}
+
+
+.auth-box {
+
+    width: 100%;
+
+    max-width: 440px;
+
+    background: #0a1524;
+
+    border: 1px solid #234666;
+
+    border-radius: 18px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.5);
+
+}
+
+
+.brand {
+
+    text-align: center;
+
+    margin-bottom: 25px;
+
+}
+
+
+.brand-icon {
+
+    width: 75px;
+
+    height: 75px;
+
+    margin: auto;
+
+    border: 2px solid #29a9ff;
+
+    border-radius: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #29a9ff;
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 0 30px rgba(41,169,255,.3);
+
+}
+
+
+.brand h1 {
+
+    margin-top: 15px;
+
+    font-size: 28px;
+
+    letter-spacing: 4px;
+
+}
+
+
+.brand p {
+
+    margin-top: 7px;
+
+    color: #7087a0;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+}
+
+
+.auth-tabs {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.auth-tab {
+
+    flex: 1;
+
+    padding: 11px;
+
+    background: #0c2034;
+
+    border: 1px solid #294862;
+
+    color: #849bb2;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+}
+
+
+.auth-tab.active {
+
+    background: #147fc4;
+
+    border-color: #29a9ff;
+
+    color: white;
+
+}
+
+
+.input-group {
+
+    margin-bottom: 16px;
+
+}
+
+
+.input-group label {
+
+    display: block;
+
+    color: #8fa6bd;
+
+    font-size: 13px;
+
+    margin-bottom: 7px;
+
+}
+
+
+.input-group input {
+
+    width: 100%;
+
+    padding: 13px;
+
+    background: #07111e;
+
+    border: 1px solid #284864;
+
+    border-radius: 9px;
+
+    color: white;
+
+    outline: none;
+
+}
+
+
+.input-group input:focus {
+
+    border-color: #29a9ff;
+
+}
+
+
+.auth-button {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #147fc4;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+
+.auth-button:hover {
+
+    background: #1b99e5;
+
+}
+
+
+.auth-message {
+
+    text-align: center;
+
+    margin-top: 15px;
+
+    font-size: 13px;
+
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+#dashboard {
+
+    display: none;
+
+}
+
+
+header {
+
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 30px;
+
+    background: #091523;
+
+    border-bottom: 1px solid #1b3651;
+
+}
+
+
+.logo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+.logo-icon {
+
+    width: 43px;
+
+    height: 43px;
+
+    border: 2px solid #29a9ff;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #29a9ff;
+
+    font-weight: bold;
+
+}
+
+
+.logo h2 {
+
+    font-size: 19px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.logo small {
+
+    display: block;
+
+    color: #687f98;
+
+    font-size: 9px;
+
+    letter-spacing: 1px;
+
+}
+
+
+.header-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+}
+
+
+.operator {
+
+    color: #8fa8c0;
+
+    font-size: 12px;
+
+}
+
+
+.online {
+
+    color: #39e58c;
+
+    font-size: 12px;
+
+}
+
+
+.logout {
+
+    padding: 9px 14px;
+
+    border-radius: 8px;
+
+    border: 1px solid #63313a;
+
+    background: #25131a;
+
+    color: #ff7885;
+
+    cursor: pointer;
+
+}
+
+
+.container {
+
+    max-width: 1350px;
+
+    margin: auto;
+
+    padding: 25px;
+
+}
+
+
+.dashboard-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 340px;
+
+    gap: 22px;
+
+}
+
+
+.card {
+
+    background: #091523;
+
+    border: 1px solid #1b3651;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.card-title {
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    margin-bottom: 18px;
+
+}
+
+
+/* =====================================================
+   FACE SCANNER
+===================================================== */
+
+.model-status {
+
+    padding: 10px;
+
+    background: #071b2d;
+
+    border-radius: 8px;
+
+    color: #8ca4bb;
+
+    font-size: 13px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.tabs {
+
+    display: flex;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+
+    margin-bottom: 15px;
+
+}
+
+
+.tab {
+
+    padding: 10px 14px;
+
+    border-radius: 8px;
+
+    background: #0c2034;
+
+    border: 1px solid #27455f;
+
+    color: #8da5bc;
+
+    cursor: pointer;
+
+}
+
+
+.tab.active {
+
+    background: #147fc4;
+
+    border-color: #29a9ff;
+
+    color: white;
+
+}
+
+
+.viewer {
+
+    min-height: 420px;
+
+    background: #02070d;
+
+    border: 1px solid #1d3a56;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+#video,
+#uploadedImage,
+#uploadedVideo {
+
+    max-width: 100%;
+
+    max-height: 520px;
+
+    display: none;
+
+}
+
+
+#video {
+
+    width: 100%;
+
+}
+
+
+#canvas {
+
+    position: absolute;
+
+    pointer-events: none;
+
+}
+
+
+.placeholder {
+
+    text-align: center;
+
+    color: #647b93;
+
+}
+
+
+.placeholder-icon {
+
+    font-size: 60px;
+
+    margin-bottom: 12px;
+
+}
+
+
+.upload-area {
+
+    width: 90%;
+
+    min-height: 250px;
+
+    border: 2px dashed #285171;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-direction: column;
+
+    text-align: center;
+
+    cursor: pointer;
+
+}
+
+
+.upload-area:hover {
+
+    border-color: #29a9ff;
+
+    background:
+        rgba(41,169,255,.03);
+
+}
+
+
+.upload-icon {
+
+    font-size: 50px;
+
+    margin-bottom: 12px;
+
+}
+
+
+.upload-area p {
+
+    color: #738ba4;
+
+    margin-top: 8px;
+
+    font-size: 13px;
+
+}
+
+
+input[type=file] {
+
+    display: none;
+
+}
+
+
+.buttons {
+
+    display: flex;
+
+    gap: 9px;
+
+    flex-wrap: wrap;
+
+    margin-top: 14px;
+
+}
+
+
+button {
+
+    padding: 10px 15px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #147fc4;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+
+button:hover {
+
+    background: #1c96dd;
+
+}
+
+
+button.secondary {
+
+    background: #142b42;
+
+    border: 1px solid #294862;
+
+}
+
+
+button.danger {
+
+    background: #7c2732;
+
+}
+
+
+/* =====================================================
+   RESULT
+===================================================== */
+
+.result {
+
+    background: #07131f;
+
+    border: 1px solid #1a354f;
+
+    border-radius: 10px;
+
+    padding: 15px;
+
+    margin-top: 15px;
+
+}
+
+
+.result-label {
+
+    color: #7189a2;
+
+    font-size: 11px;
+
+}
+
+
+.result-name {
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+    margin: 7px 0;
+
+}
+
+
+.recognized {
+
+    color: #39e58c;
+
+}
+
+
+.unknown {
+
+    color: #ff6978;
+
+}
+
+
+.metric {
+
+    margin-top: 13px;
+
+}
+
+
+.metric-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    color: #849bb2;
+
+    font-size: 12px;
+
+    margin-bottom: 5px;
+
+}
+
+
+.progress {
+
+    height: 8px;
+
+    background: #17283a;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+}
+
+
+.progress-bar {
+
+    height: 100%;
+
+    width: 0%;
+
+    background: #29a9ff;
+
+}
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.stat {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin: 14px 0;
+
+}
+
+
+.stat span {
+
+    color: #7d94aa;
+
+    font-size: 13px;
+
+}
+
+
+.stat strong {
+
+    font-size: 20px;
+
+}
+
+
+/* =====================================================
+   LOCATION
+===================================================== */
+
+.location-status {
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+    background: #071c2e;
+
+    color: #8fa8c0;
+
+    font-size: 12px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.location-value {
+
+    font-size: 14px !important;
+
+    max-width: 160px;
+
+    text-align: right;
+
+    word-break: break-word;
+
+}
+
+
+#locationMap {
+
+    width: 100%;
+
+    height: 350px;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    border: 1px solid #1b3651;
+
+}
+
+
+/* =====================================================
+   LOG
+===================================================== */
+
+.log-row {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr 110px;
+
+    gap: 10px;
+
+    padding: 12px 5px;
+
+    border-bottom:
+        1px solid #18324b;
+
+    font-size: 13px;
+
+}
+
+
+.log-header {
+
+    color: #6f879f;
+
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer {
+
+    text-align: center;
+
+    color: #50677f;
+
+    padding: 25px;
+
+    font-size: 11px;
+
+}
+
+
+@media(max-width: 900px) {
+
+    .dashboard-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+@media(max-width: 600px) {
+
+    header {
+
+        padding: 0 15px;
+
+    }
+
+    .container {
+
+        padding: 12px;
+
+    }
+
+    .auth-box {
+
+        padding: 25px;
+
+    }
+
+}
+
+</style>
+
 </head>
 
+
 <body>
-    <div class="app">
-        <!-- NAVIGATION SIDEBAR -->
-        <div class="sidebar">
-            <h2>Trace 1</h2>
-            <button class="nav-btn active" onclick="switchTab('cctvTab', this)">Biometric Scanner</button>
-            <button class="nav-btn" onclick="switchTab('databaseTab', this)">Person Database</button>
-        </div>
 
-        <!-- MAIN CONTENT AREA -->
-        <div class="main-content">
-            <!-- BIOMETRIC CCTV SCANNER TAB -->
-            <div id="cctvTab" class="section active">
-                <div class="card">
-                    <h3>Real-Time Biometric Video Scanner</h3>
-                    <p style="color: #94a3b8; font-size: 0.9rem;">
-                        Upload a video file containing clear faces. The AI scanner detects facial landmarks in real time and computes 128-d biometric signatures to match against the person database.
-                    </p>
-                    
-                    <div class="input-group" style="margin-top: 16px;">
-                        <label>Select CCTV Video File</label>
-                        <input type="file" id="videoInput" accept="video/*" onchange="loadVideo(event)">
-                    </div>
 
-                    <div class="video-container">
-                        <video id="cctvVideo" controls onplay="startBiometricTracking()"></video>
-                        <canvas id="cctvCanvas"></canvas>
-                    </div>
+<!-- =====================================================
+     AUTHENTICATION SCREEN
+===================================================== -->
 
-                    <div class="status-box" id="analysisStatus">Initializing Biometric Engine...</div>
+<section id="authScreen">
 
-                    <button class="btn" style="margin-top: 16px;" onclick="runDemoAnalysis()">Match Frame Against Database</button>
+<div class="auth-box">
 
-                    <div id="matchResults"></div>
-                </div>
-            </div>
 
-            <!-- DATABASE TAB -->
-            <div id="databaseTab" class="section">
-                <div class="card">
-                    <h3>Register Person Profile</h3>
-                    <div class="input-group">
-                        <label>Full Name</label>
-                        <input type="text" id="personName" placeholder="e.g. John Doe">
-                    </div>
-                    <div class="input-group">
-                        <label>ID / Card Number</label>
-                        <input type="text" id="cardId" placeholder="e.g. ID-90210">
-                    </div>
-                    <div class="input-group">
-                        <label>Station / Class</label>
-                        <input type="text" id="station" placeholder="e.g. Station A">
-                    </div>
-                    <div class="input-group">
-                        <label>Clear Face Photo</label>
-                        <input type="file" id="personPhoto" accept="image/*">
-                    </div>
-                    <button class="btn" onclick="addPerson()">Save Biometric Record</button>
-                </div>
-            </div>
-        </div>
+<div class="brand">
+
+    <div class="brand-icon">
+        T1
     </div>
 
-    <script>
-        // Tab Switcher
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+    <h1>
+        TRACE 1
+    </h1>
+
+    <p>
+        BIOMETRIC SECURITY SYSTEM
+    </p>
+
+</div>
+
+
+<div class="auth-tabs">
+
+    <button
+        class="auth-tab active"
+        id="loginTab">
+
+        Login
+
+    </button>
+
+
+    <button
+        class="auth-tab"
+        id="registerTab">
+
+        Register
+
+    </button>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<form id="loginForm">
+
+    <div class="input-group">
+
+        <label>
+            Username
+        </label>
+
+        <input
+            type="text"
+            id="loginUsername"
+            placeholder="Enter username"
+            required>
+
+    </div>
+
+
+    <div class="input-group">
+
+        <label>
+            Password
+        </label>
+
+        <input
+            type="password"
+            id="loginPassword"
+            placeholder="Enter password"
+            required>
+
+    </div>
+
+
+    <button
+        class="auth-button"
+        type="submit">
+
+        SIGN IN
+
+    </button>
+
+</form>
+
+
+<!-- REGISTER -->
+
+<form
+    id="registerForm"
+    style="display:none;">
+
+    <div class="input-group">
+
+        <label>
+            Full Name
+        </label>
+
+        <input
+            type="text"
+            id="registerName"
+            placeholder="Your full name"
+            required>
+
+    </div>
+
+
+    <div class="input-group">
+
+        <label>
+            Username
+        </label>
+
+        <input
+            type="text"
+            id="registerUsername"
+            placeholder="Create username"
+            required>
+
+    </div>
+
+
+    <div class="input-group">
+
+        <label>
+            Password
+        </label>
+
+        <input
+            type="password"
+            id="registerPassword"
+            placeholder="Create password"
+            required>
+
+    </div>
+
+
+    <div class="input-group">
+
+        <label>
+            Confirm Password
+        </label>
+
+        <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm password"
+            required>
+
+    </div>
+
+
+    <button
+        class="auth-button"
+        type="submit">
+
+        CREATE ACCOUNT
+
+    </button>
+
+</form>
+
+
+<div
+    id="authMessage"
+    class="auth-message">
+</div>
+
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<section id="dashboard">
+
+
+<header>
+
+
+<div class="logo">
+
+    <div class="logo-icon">
+        T1
+    </div>
+
+    <div>
+
+        <h2>
+            TRACE 1
+        </h2>
+
+        <small>
+            BIOMETRIC FACE RECOGNITION
+        </small>
+
+    </div>
+
+</div>
+
+
+<div class="header-right">
+
+    <span
+        id="operatorDisplay"
+        class="operator">
+        Operator
+    </span>
+
+    <span class="online">
+        ● ONLINE
+    </span>
+
+    <button
+        class="logout"
+        id="logoutButton">
+
+        Logout
+
+    </button>
+
+</div>
+
+</header>
+
+
+<div class="container">
+
+
+<div class="dashboard-grid">
+
+
+<main>
+
+
+<!-- =====================================================
+     FACE RECOGNITION
+===================================================== -->
+
+<div class="card">
+
+
+<div class="card-title">
+
+    Face Recognition Scanner
+
+</div>
+
+
+<div
+    id="modelStatus"
+    class="model-status">
+
+    Loading biometric AI models...
+
+</div>
+
+
+<div class="tabs">
+
+    <button
+        class="tab active"
+        id="cameraTab">
+
+        📷 Live Camera
+
+    </button>
+
+
+    <button
+        class="tab"
+        id="imageTab">
+
+        🖼️ Upload Image
+
+    </button>
+
+
+    <button
+        class="tab"
+        id="videoTab">
+
+        🎥 Upload Video
+
+    </button>
+
+</div>
+
+
+<!-- CAMERA -->
+
+<div id="cameraPanel">
+
+
+<div class="viewer">
+
+    <video
+        id="video"
+        autoplay
+        muted
+        playsinline>
+    </video>
+
+
+    <canvas id="canvas">
+    </canvas>
+
+
+    <div
+        id="cameraPlaceholder"
+        class="placeholder">
+
+        <div class="placeholder-icon">
+            📷
+        </div>
+
+        <p>
+            Camera is not running
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="buttons">
+
+    <button id="startCamera">
+        Start Camera
+    </button>
+
+
+    <button
+        id="stopCamera"
+        class="secondary">
+
+        Stop Camera
+
+    </button>
+
+
+    <button
+        id="registerCamera"
+        class="secondary">
+
+        Register Face
+
+    </button>
+
+</div>
+
+</div>
+
+
+<!-- IMAGE -->
+
+<div
+    id="imagePanel"
+    style="display:none;">
+
+<div class="viewer">
+
+
+<div
+    class="upload-area"
+    id="imageUploadArea">
+
+    <div class="upload-icon">
+        🖼️
+    </div>
+
+    <h3>
+        Upload an image
+    </h3>
+
+    <p>
+        JPG, JPEG or PNG
+    </p>
+
+    <input
+        type="file"
+        id="imageInput"
+        accept="image/*">
+
+</div>
+
+
+<img
+    id="uploadedImage">
+
+</div>
+
+
+<div class="buttons">
+
+    <button id="analyzeImage">
+        🔎 Analyze Image
+    </button>
+
+
+    <button
+        id="registerImage"
+        class="secondary">
+
+        Register Face
+
+    </button>
+
+
+    <button
+        id="clearImage"
+        class="secondary">
+
+        Clear
+
+    </button>
+
+</div>
+
+</div>
+
+
+<!-- VIDEO -->
+
+<div
+    id="videoPanel"
+    style="display:none;">
+
+<div class="viewer">
+
+
+<div
+    class="upload-area"
+    id="videoUploadArea">
+
+    <div class="upload-icon">
+        🎥
+    </div>
+
+    <h3>
+        Upload a video
+    </h3>
+
+    <p>
+        Select video for analysis
+    </p>
+
+    <input
+        type="file"
+        id="videoInput"
+        accept="video/*">
+
+</div>
+
+
+<video
+    id="uploadedVideo"
+    controls
+    muted>
+</video>
+
+
+</div>
+
+
+<div class="buttons">
+
+    <button id="analyzeVideo">
+        🔎 Analyze Video
+    </button>
+
+
+    <button
+        id="stopVideo"
+        class="secondary">
+
+        Stop Analysis
+
+    </button>
+
+
+    <button
+        id="clearVideo"
+        class="secondary">
+
+        Clear
+
+    </button>
+
+</div>
+
+</div>
+
+
+<!-- RESULT -->
+
+<div class="result">
+
+
+<div class="result-label">
+    RECOGNITION RESULT
+</div>
+
+
+<div
+    id="resultName"
+    class="result-name">
+
+    Waiting for scan...
+
+</div>
+
+
+<div id="resultDetails">
+
+    No face has been analyzed yet.
+
+</div>
+
+
+<div class="metric">
+
+
+<div class="metric-top">
+
+    <span>
+        Similarity
+    </span>
+
+    <span id="similarityText">
+        0%
+    </span>
+
+</div>
+
+
+<div class="progress">
+
+    <div
+        id="similarityBar"
+        class="progress-bar">
+    </div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     RECOGNITION LOG
+===================================================== -->
+
+<div class="card">
+
+<div class="card-title">
+    Recognition Log
+</div>
+
+
+<div class="log-row log-header">
+
+    <span>
+        Person
+    </span>
+
+    <span>
+        Source
+    </span>
+
+    <span>
+        Time
+    </span>
+
+</div>
+
+
+<div id="logContainer">
+</div>
+
+</div>
+
+
+</main>
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside>
+
+
+<!-- STATISTICS -->
+
+<div class="card">
+
+<div class="card-title">
+    System Statistics
+</div>
+
+
+<div class="stat">
+
+    <span>
+        Registered People
+    </span>
+
+    <strong id="registeredCount">
+        0
+    </strong>
+
+</div>
+
+
+<div class="stat">
+
+    <span>
+        Total Scans
+    </span>
+
+    <strong id="scanCount">
+        0
+    </strong>
+
+</div>
+
+
+<div class="stat">
+
+    <span>
+        Recognized
+    </span>
+
+    <strong id="recognizedCount">
+        0
+    </strong>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     LOCATION SENSOR
+===================================================== -->
+
+<div class="card">
+
+<div class="card-title">
+    📍 Location Sensor
+</div>
+
+
+<div
+    id="locationStatus"
+    class="location-status">
+
+    ● Location sensor ready
+
+</div>
+
+
+<div class="stat">
+
+    <span>
+        Latitude
+    </span>
+
+    <strong
+        id="latitude"
+        class="location-value">
+
+        --
+
+    </strong>
+
+</div>
+
+
+<div class="stat">
+
+    <span>
+        Longitude
+    </span>
+
+    <strong
+        id="longitude"
+        class="location-value">
+
+        --
+
+    </strong>
+
+</div>
+
+
+<div class="stat">
+
+    <span>
+        Accuracy
+    </span>
+
+    <strong
+        id="accuracy"
+        class="location-value">
+
+        --
+
+    </strong>
+
+</div>
+
+
+<div class="stat">
+
+    <span>
+        Last Update
+    </span>
+
+    <strong
+        id="lastLocationUpdate"
+        class="location-value">
+
+        --
+
+    </strong>
+
+</div>
+
+
+<div class="buttons">
+
+    <button id="getLocation">
+        📍 Get Location
+    </button>
+
+
+    <button
+        id="startLocationSensor"
+        class="secondary">
+
+        ▶ Start Sensor
+
+    </button>
+
+
+    <button
+        id="stopLocationSensor"
+        class="danger">
+
+        ■ Stop Sensor
+
+    </button>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     MAP
+===================================================== -->
+
+<div class="card">
+
+<div class="card-title">
+    🗺️ Current Location Map
+</div>
+
+
+<div id="locationMap">
+</div>
+
+
+<div
+    id="mapStatus"
+    style="
+        margin-top:10px;
+        color:#7189a2;
+        font-size:12px;
+    ">
+
+    Waiting for location...
+
+</div>
+
+</div>
+
+
+<!-- SETTINGS -->
+
+<div class="card">
+
+<div class="card-title">
+    Recognition Settings
+</div>
+
+
+<label
+    style="
+        color:#8299b0;
+        font-size:13px;
+    ">
+
+    Recognition threshold
+
+</label>
+
+
+<input
+    id="threshold"
+    type="range"
+    min="0.35"
+    max="0.70"
+    step="0.01"
+    value="0.50"
+    style="
+        width:100%;
+        margin-top:12px;
+    ">
+
+
+<p
+    style="
+        color:#7189a0;
+        font-size:12px;
+        margin-top:8px;
+    ">
+
+    Current threshold:
+
+    <span id="thresholdValue">
+        0.50
+    </span>
+
+</p>
+
+</div>
+
+
+</aside>
+
+
+</div>
+
+</div>
+
+
+<footer>
+
+TRACE 1 • Biometric Security & Recognition Platform
+
+</footer>
+
+
+</section>
+
+
+<script>
+
+/* =====================================================
+   AUTHENTICATION
+===================================================== */
+
+const authScreen =
+    document.getElementById(
+        "authScreen"
+    );
+
+const dashboard =
+    document.getElementById(
+        "dashboard"
+    );
+
+const loginForm =
+    document.getElementById(
+        "loginForm"
+    );
+
+const registerForm =
+    document.getElementById(
+        "registerForm"
+    );
+
+const loginTab =
+    document.getElementById(
+        "loginTab"
+    );
+
+const registerTab =
+    document.getElementById(
+        "registerTab"
+    );
+
+const authMessage =
+    document.getElementById(
+        "authMessage"
+    );
+
+
+/* USER DATABASE */
+
+let traceUsers =
+    JSON.parse(
+        localStorage.getItem(
+            "trace1_users"
+        ) || "[]"
+    );
+
+
+/* =====================================================
+   AUTH TABS
+===================================================== */
+
+loginTab.onclick =
+function() {
+
+    loginTab.classList.add(
+        "active"
+    );
+
+    registerTab.classList.remove(
+        "active"
+    );
+
+    loginForm.style.display =
+        "block";
+
+    registerForm.style.display =
+        "none";
+
+    authMessage.textContent = "";
+
+};
+
+
+registerTab.onclick =
+function() {
+
+    registerTab.classList.add(
+        "active"
+    );
+
+    loginTab.classList.remove(
+        "active"
+    );
+
+    loginForm.style.display =
+        "none";
+
+    registerForm.style.display =
+        "block";
+
+    authMessage.textContent = "";
+
+};
+
+
+/* =====================================================
+   REGISTER
+===================================================== */
+
+registerForm.addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+
+        const name =
+            document.getElementById(
+                "registerName"
+            ).value.trim();
+
+
+        const username =
+            document.getElementById(
+                "registerUsername"
+            ).value.trim();
+
+
+        const password =
+            document.getElementById(
+                "registerPassword"
+            ).value;
+
+
+        const confirm =
+            document.getElementById(
+                "confirmPassword"
+            ).value;
+
+
+        if (
+            password !== confirm
+        ) {
+
+            showAuthMessage(
+                "Passwords do not match.",
+                "error"
+            );
+
+            return;
+
         }
 
-        // Mock/Local Storage Database
-        let people = JSON.parse(localStorage.getItem('trace_people') || '[]');
 
-        function addPerson() {
-            const name = document.getElementById('personName').value;
-            const cardId = document.getElementById('cardId').value;
-            const station = document.getElementById('station').value;
-            const photoInput = document.getElementById('personPhoto');
+        if (
+            password.length < 6
+        ) {
 
-            if (!name || !photoInput.files[0]) {
-                alert('Please fill name and provide a face photo.');
-                return;
-            }
+            showAuthMessage(
+                "Password must contain at least 6 characters.",
+                "error"
+            );
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                people.push({
-                    name: name,
-                    cardId: cardId,
-                    station: station,
-                    photo: e.target.result
+            return;
+
+        }
+
+
+        const existing =
+            traceUsers.find(
+                user =>
+                    user.username.toLowerCase()
+                    ===
+                    username.toLowerCase()
+            );
+
+
+        if (existing) {
+
+            showAuthMessage(
+                "That username already exists.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        traceUsers.push({
+
+            name: name,
+
+            username: username,
+
+            password: password
+
+        });
+
+
+        localStorage.setItem(
+            "trace1_users",
+            JSON.stringify(
+                traceUsers
+            )
+        );
+
+
+        showAuthMessage(
+            "Account created successfully. You can now log in.",
+            "success"
+        );
+
+
+        registerForm.reset();
+
+
+        setTimeout(
+            function() {
+
+                loginTab.click();
+
+            },
+            1000
+        );
+
+    }
+);
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+loginForm.addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+
+        const username =
+            document.getElementById(
+                "loginUsername"
+            ).value.trim();
+
+
+        const password =
+            document.getElementById(
+                "loginPassword"
+            ).value;
+
+
+        const user =
+            traceUsers.find(
+                item =>
+                    item.username ===
+                    username &&
+                    item.password ===
+                    password
+            );
+
+
+        if (!user) {
+
+            showAuthMessage(
+                "Invalid username or password.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        sessionStorage.setItem(
+            "trace1_current_user",
+            JSON.stringify(
+                user
+            )
+        );
+
+
+        openDashboard(
+            user
+        );
+
+    }
+);
+
+
+/* =====================================================
+   AUTH MESSAGE
+===================================================== */
+
+function showAuthMessage(
+    message,
+    type
+) {
+
+    authMessage.textContent =
+        message;
+
+
+    if (
+        type === "success"
+    ) {
+
+        authMessage.style.color =
+            "#39e58c";
+
+    }
+
+    else {
+
+        authMessage.style.color =
+            "#ff6978";
+
+    }
+
+}
+
+
+/* =====================================================
+   OPEN DASHBOARD
+===================================================== */
+
+function openDashboard(
+    user
+) {
+
+    authScreen.style.display =
+        "none";
+
+    dashboard.style.display =
+        "block";
+
+
+    document.getElementById(
+        "operatorDisplay"
+    ).textContent =
+        "Operator: " +
+        user.name;
+
+}
+
+
+/* =====================================================
+   AUTO LOGIN
+===================================================== */
+
+const savedUser =
+    sessionStorage.getItem(
+        "trace1_current_user"
+    );
+
+
+if (savedUser) {
+
+    try {
+
+        openDashboard(
+            JSON.parse(
+                savedUser
+            )
+        );
+
+    }
+
+    catch(error) {
+
+        sessionStorage.removeItem(
+            "trace1_current_user"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+document
+    .getElementById(
+        "logoutButton"
+    )
+    .onclick =
+    function() {
+
+        sessionStorage.removeItem(
+            "trace1_current_user"
+        );
+
+        location.reload();
+
+    };
+
+
+/* =====================================================
+   FACE RECOGNITION
+===================================================== */
+
+const MODEL_URL =
+"https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.15/model/";
+
+
+let modelsLoaded = false;
+
+let cameraStream = null;
+
+let registeredPeople =
+JSON.parse(
+    localStorage.getItem(
+        "trace1_people"
+    ) || "[]"
+);
+
+
+let scanCount =
+parseInt(
+    localStorage.getItem(
+        "trace1_scans"
+    ) || "0"
+);
+
+
+let recognizedCount =
+parseInt(
+    localStorage.getItem(
+        "trace1_recognized"
+    ) || "0"
+);
+
+
+let videoAnalysisRunning =
+    false;
+
+let videoFile =
+    null;
+
+
+/* ELEMENTS */
+
+const video =
+    document.getElementById(
+        "video"
+    );
+
+const canvas =
+    document.getElementById(
+        "canvas"
+    );
+
+const uploadedImage =
+    document.getElementById(
+        "uploadedImage"
+    );
+
+const uploadedVideo =
+    document.getElementById(
+        "uploadedVideo"
+    );
+
+const imageInput =
+    document.getElementById(
+        "imageInput"
+    );
+
+const videoInput =
+    document.getElementById(
+        "videoInput"
+    );
+
+
+/* =====================================================
+   LOAD MODELS
+===================================================== */
+
+async function loadModels() {
+
+    const status =
+        document.getElementById(
+            "modelStatus"
+        );
+
+
+    try {
+
+        status.textContent =
+            "Loading face detection model...";
+
+
+        await faceapi.nets
+            .ssdMobilenetv1
+            .loadFromUri(
+                MODEL_URL
+            );
+
+
+        status.textContent =
+            "Loading face landmark model...";
+
+
+        await faceapi.nets
+            .faceLandmark68Net
+            .loadFromUri(
+                MODEL_URL
+            );
+
+
+        status.textContent =
+            "Loading face recognition model...";
+
+
+        await faceapi.nets
+            .faceRecognitionNet
+            .loadFromUri(
+                MODEL_URL
+            );
+
+
+        modelsLoaded =
+            true;
+
+
+        status.textContent =
+            "✓ Biometric AI models ready";
+
+
+        status.style.color =
+            "#39e58c";
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+
+        status.textContent =
+            "⚠ Could not load biometric AI models.";
+
+
+        status.style.color =
+            "#ff6675";
+
+    }
+
+}
+
+
+loadModels();
+
+
+/* =====================================================
+   TABS
+===================================================== */
+
+const cameraTab =
+    document.getElementById(
+        "cameraTab"
+    );
+
+const imageTab =
+    document.getElementById(
+        "imageTab"
+    );
+
+const videoTab =
+    document.getElementById(
+        "videoTab"
+    );
+
+
+const cameraPanel =
+    document.getElementById(
+        "cameraPanel"
+    );
+
+const imagePanel =
+    document.getElementById(
+        "imagePanel"
+    );
+
+const videoPanel =
+    document.getElementById(
+        "videoPanel"
+    );
+
+
+function activateTab(
+    tab
+) {
+
+    cameraTab.classList.remove(
+        "active"
+    );
+
+    imageTab.classList.remove(
+        "active"
+    );
+
+    videoTab.classList.remove(
+        "active"
+    );
+
+
+    tab.classList.add(
+        "active"
+    );
+
+}
+
+
+cameraTab.onclick =
+function() {
+
+    activateTab(
+        cameraTab
+    );
+
+
+    cameraPanel.style.display =
+        "block";
+
+    imagePanel.style.display =
+        "none";
+
+    videoPanel.style.display =
+        "none";
+
+};
+
+
+imageTab.onclick =
+function() {
+
+    activateTab(
+        imageTab
+    );
+
+
+    cameraPanel.style.display =
+        "none";
+
+    imagePanel.style.display =
+        "block";
+
+    videoPanel.style.display =
+        "none";
+
+};
+
+
+videoTab.onclick =
+function() {
+
+    activateTab(
+        videoTab
+    );
+
+
+    cameraPanel.style.display =
+        "none";
+
+    imagePanel.style.display =
+        "none";
+
+    videoPanel.style.display =
+        "block";
+
+};
+
+
+/* =====================================================
+   CAMERA
+===================================================== */
+
+document
+    .getElementById(
+        "startCamera"
+    )
+    .onclick =
+    async function() {
+
+        if (!modelsLoaded) {
+
+            alert(
+                "Please wait for the AI models to load."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            cameraStream =
+                await navigator
+                .mediaDevices
+                .getUserMedia({
+
+                    video: {
+                        facingMode:
+                            "user"
+                    },
+
+                    audio: false
+
                 });
-                localStorage.setItem('trace_people', JSON.stringify(people));
-                alert('Person registered successfully.');
-                document.getElementById('personName').value = '';
-                document.getElementById('cardId').value = '';
-                document.getElementById('station').value = '';
-                photoInput.value = '';
-            };
-            reader.readAsDataURL(photoInput.files[0]);
+
+
+            video.srcObject =
+                cameraStream;
+
+
+            video.style.display =
+                "block";
+
+
+            document
+                .getElementById(
+                    "cameraPlaceholder"
+                )
+                .style.display =
+                "none";
+
+
+            detectCamera();
+
         }
 
-        function escapeHTML(str) {
-            return str ? str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            ) : '';
+        catch(error) {
+
+            console.error(error);
+
+
+            alert(
+                "Camera permission was denied or camera is unavailable."
+            );
+
         }
 
-        // BIOMETRIC RECOGNITION ENGINE
-        let faceModelsLoaded = false;
+    };
 
-        async function loadBiometricModels() {
-            const status = document.getElementById("analysisStatus");
-            status.textContent = "Loading biometric AI models (SSD MobileNet V1 & Landmark68)...";
 
-            try {
-                // Pre-trained face recognition weights hosted on GitHub CDN
-                const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
-                await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-                await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+document
+    .getElementById(
+        "stopCamera"
+    )
+    .onclick =
+    function() {
 
-                faceModelsLoaded = true;
-                status.textContent = "Biometric AI models loaded. Upload video to begin tracking.";
-            } catch (err) {
-                status.textContent = "Error loading AI models. Ensure internet connection is active.";
-                console.error(err);
-            }
+        stopCamera();
+
+    };
+
+
+function stopCamera() {
+
+    if (cameraStream) {
+
+        cameraStream
+            .getTracks()
+            .forEach(
+                track =>
+                    track.stop()
+            );
+
+        cameraStream =
+            null;
+
+    }
+
+
+    video.srcObject =
+        null;
+
+    video.style.display =
+        "none";
+
+
+    document
+        .getElementById(
+            "cameraPlaceholder"
+        )
+        .style.display =
+        "block";
+
+}
+
+
+async function detectCamera() {
+
+    if (
+        !cameraStream ||
+        !modelsLoaded
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        video.readyState < 2
+    ) {
+
+        requestAnimationFrame(
+            detectCamera
+        );
+
+        return;
+
+    }
+
+
+    const detection =
+        await faceapi
+        .detectSingleFace(
+            video,
+            new faceapi.SsdMobilenetv1Options()
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+
+    if (detection) {
+
+        const displaySize = {
+
+            width:
+                video.videoWidth,
+
+            height:
+                video.videoHeight
+
+        };
+
+
+        canvas.width =
+            displaySize.width;
+
+        canvas.height =
+            displaySize.height;
+
+
+        faceapi.matchDimensions(
+            canvas,
+            displaySize
+        );
+
+
+        const resized =
+            faceapi.resizeResults(
+                detection,
+                displaySize
+            );
+
+
+        canvas
+            .getContext("2d")
+            .clearRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+        faceapi.draw
+            .drawDetections(
+                canvas,
+                resized
+            );
+
+
+        recognizeDescriptor(
+            detection.descriptor,
+            "Live Camera"
+        );
+
+    }
+
+
+    requestAnimationFrame(
+        detectCamera
+    );
+
+}
+
+
+/* =====================================================
+   IMAGE UPLOAD
+===================================================== */
+
+document
+    .getElementById(
+        "imageUploadArea"
+    )
+    .onclick =
+    function() {
+
+        imageInput.click();
+
+    };
+
+
+imageInput.onchange =
+function(event) {
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file)
+        return;
+
+
+    uploadedImage.src =
+        URL.createObjectURL(
+            file
+        );
+
+
+    uploadedImage.onload =
+    function() {
+
+        document
+            .getElementById(
+                "imageUploadArea"
+            )
+            .style.display =
+            "none";
+
+
+        uploadedImage.style.display =
+            "block";
+
+    };
+
+};
+
+
+/* =====================================================
+   ANALYZE IMAGE
+===================================================== */
+
+document
+    .getElementById(
+        "analyzeImage"
+    )
+    .onclick =
+    async function() {
+
+        if (!modelsLoaded) {
+
+            alert(
+                "AI models are still loading."
+            );
+
+            return;
+
         }
-        window.addEventListener('DOMContentLoaded', loadBiometricModels);
 
-        function loadVideo(event) {
-            const file = event.target.files[0];
-            if (!file) return;
 
-            const video = document.getElementById("cctvVideo");
-            video.src = URL.createObjectURL(file);
+        if (!uploadedImage.src) {
+
+            alert(
+                "Choose an image first."
+            );
+
+            return;
+
         }
 
-        async function startBiometricTracking() {
-            if (!faceModelsLoaded) return;
 
-            const video = document.getElementById("cctvVideo");
-            const canvas = document.getElementById("cctvCanvas");
+        const detection =
+            await faceapi
+            .detectSingleFace(
+                uploadedImage,
+                new faceapi
+                    .SsdMobilenetv1Options()
+            )
+            .withFaceLandmarks()
+            .withFaceDescriptor();
 
-            const displaySize = { width: video.clientWidth, height: video.clientHeight };
-            faceapi.matchDimensions(canvas, displaySize);
 
-            setInterval(async () => {
-                if (video.paused || video.ended) return;
+        if (!detection) {
 
-                // Detect faces, extract 68 landmarks, compute 128-d descriptor vectors
-                const detections = await faceapi.detectAllFaces(video)
-                    .withFaceLandmarks()
-                    .withFaceDescriptors();
+            showResult(
+                "No Face Detected",
+                "No clear face was found.",
+                0,
+                false
+            );
 
-                const resizedDetections = faceapi.resizeResults(detections, displaySize);
+            return;
 
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Draw bounding box & facial mesh over video stream
-                faceapi.draw.drawDetections(canvas, resizedDetections);
-                faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-            }, 100);
         }
 
-        async function runDemoAnalysis() {
-            const status = document.getElementById("analysisStatus");
-            const results = document.getElementById("matchResults");
-            results.innerHTML = "";
 
-            if (!people || people.length === 0) {
-                status.textContent = "No profiles found in database. Register a person first.";
-                return;
-            }
+        recognizeDescriptor(
+            detection.descriptor,
+            "Uploaded Image"
+        );
 
-            status.textContent = "Scanning frame for biometric facial features...";
+    };
 
-            const video = document.getElementById("cctvVideo");
-            const videoDetection = await faceapi.detectSingleFace(video)
-                .withFaceLandmarks()
-                .withFaceDescriptor();
 
-            if (!videoDetection) {
-                status.textContent = "No visible face detected in current frame. Pause video on a clear face.";
-                return;
-            }
+/* =====================================================
+   REGISTER IMAGE FACE
+===================================================== */
 
-            status.textContent = "Comparing 128-dimensional biometric vectors against database...";
+document
+    .getElementById(
+        "registerImage"
+    )
+    .onclick =
+    async function() {
 
-            let bestMatch = null;
-            let lowestDistance = 1.0; // Distance thresholds < 0.6 indicate match
+        if (!uploadedImage.src) {
 
-            for (const person of people) {
-                if (!person.photo) continue;
+            alert(
+                "Upload an image first."
+            );
 
-                const img = await faceapi.fetchImage(person.photo);
-                const dbDetection = await faceapi.detectSingleFace(img)
-                    .withFaceLandmarks()
-                    .withFaceDescriptor();
+            return;
 
-                if (dbDetection) {
-                    // Compute Euclidean Distance between facial descriptor vectors
-                    const distance = faceapi.euclideanDistance(videoDetection.descriptor, dbDetection.descriptor);
-                    if (distance < lowestDistance) {
-                        lowestDistance = distance;
-                        bestMatch = { person, distance };
+        }
+
+
+        const detection =
+            await faceapi
+            .detectSingleFace(
+                uploadedImage
+            )
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+
+        if (!detection) {
+
+            alert(
+                "No clear face detected."
+            );
+
+            return;
+
+        }
+
+
+        registerDescriptor(
+            detection.descriptor
+        );
+
+    };
+
+
+/* =====================================================
+   VIDEO
+===================================================== */
+
+document
+    .getElementById(
+        "videoUploadArea"
+    )
+    .onclick =
+    function() {
+
+        videoInput.click();
+
+    };
+
+
+videoInput.onchange =
+function(event) {
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file)
+        return;
+
+
+    videoFile =
+        file;
+
+
+    uploadedVideo.src =
+        URL.createObjectURL(
+            file
+        );
+
+
+    uploadedVideo.style.display =
+        "block";
+
+
+    document
+        .getElementById(
+            "videoUploadArea"
+        )
+        .style.display =
+        "none";
+
+};
+
+
+document
+    .getElementById(
+        "analyzeVideo"
+    )
+    .onclick =
+    async function() {
+
+        if (!modelsLoaded) {
+
+            alert(
+                "AI models are still loading."
+            );
+
+            return;
+
+        }
+
+
+        if (!videoFile) {
+
+            alert(
+                "Choose a video first."
+            );
+
+            return;
+
+        }
+
+
+        videoAnalysisRunning =
+            true;
+
+
+        uploadedVideo.currentTime =
+            0;
+
+
+        uploadedVideo.play();
+
+
+        analyzeVideoFrames();
+
+    };
+
+
+async function analyzeVideoFrames() {
+
+    if (
+        !videoAnalysisRunning
+    )
+        return;
+
+
+    if (
+        uploadedVideo.paused ||
+        uploadedVideo.ended
+    ) {
+
+        videoAnalysisRunning =
+            false;
+
+        return;
+
+    }
+
+
+    const detection =
+        await faceapi
+        .detectSingleFace(
+            uploadedVideo,
+            new faceapi
+                .SsdMobilenetv1Options()
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+
+    if (detection) {
+
+        recognizeDescriptor(
+            detection.descriptor,
+            "Uploaded Video"
+        );
+
+    }
+
+
+    setTimeout(
+        analyzeVideoFrames,
+        700
+    );
+
+}
+
+
+document
+    .getElementById(
+        "stopVideo"
+    )
+    .onclick =
+    function() {
+
+        videoAnalysisRunning =
+            false;
+
+        uploadedVideo.pause();
+
+    };
+
+
+document
+    .getElementById(
+        "clearVideo"
+    )
+    .onclick =
+    function() {
+
+        videoAnalysisRunning =
+            false;
+
+        uploadedVideo.pause();
+
+        uploadedVideo.removeAttribute(
+            "src"
+        );
+
+        uploadedVideo.load();
+
+
+        uploadedVideo.style.display =
+            "none";
+
+
+        document
+            .getElementById(
+                "videoUploadArea"
+            )
+            .style.display =
+            "flex";
+
+
+        videoInput.value =
+            "";
+
+        videoFile =
+            null;
+
+    };
+
+
+/* =====================================================
+   RECOGNITION
+===================================================== */
+
+function recognizeDescriptor(
+    descriptor,
+    source
+) {
+
+    if (
+        registeredPeople.length ===
+        0
+    ) {
+
+        showResult(
+            "Unknown",
+            "No registered faces are available.",
+            0,
+            false
+        );
+
+        return;
+
+    }
+
+
+    const threshold =
+        parseFloat(
+            document
+            .getElementById(
+                "threshold"
+            )
+            .value
+        );
+
+
+    let bestPerson =
+        null;
+
+    let bestDistance =
+        Infinity;
+
+
+    registeredPeople.forEach(
+        person => {
+
+            person.descriptors.forEach(
+                saved => {
+
+                    const distance =
+                        faceapi.euclideanDistance(
+                            descriptor,
+                            new Float32Array(
+                                saved
+                            )
+                        );
+
+
+                    if (
+                        distance <
+                        bestDistance
+                    ) {
+
+                        bestDistance =
+                            distance;
+
+                        bestPerson =
+                            person;
+
                     }
+
                 }
-            }
+            );
 
-            if (bestMatch && lowestDistance < 0.6) {
-                const matchPercent = Math.round((1 - lowestDistance) * 100);
-                status.textContent = `Biometric match identified! Match Confidence: ${matchPercent}%`;
-
-                results.innerHTML = `
-                    <div class="match-card">
-                        ${bestMatch.person.photo ? `<img src="${bestMatch.person.photo}">` : ``}
-                        <div>
-                            <strong style="color: #38bdf8;">Biometric Identity Match</strong>
-                            <p style="margin-top: 4px;">Name: ${escapeHTML(bestMatch.person.name)}</p>
-                            <p style="color: #94a3b8; margin-top: 2px;">ID: ${escapeHTML(bestMatch.person.cardId)}</p>
-                            <p style="color: #94a3b8; margin-top: 2px;">Station/Class: ${escapeHTML(bestMatch.person.station)}</p>
-                            <p class="confidence" style="margin-top: 6px;">Biometric Distance: ${lowestDistance.toFixed(3)} (${matchPercent}% Match)</p>
-                        </div>
-                    </div>
-                `;
-            } else {
-                status.textContent = "Biometric comparison complete: No matching profile found in database.";
-            }
         }
-    </script>
-</body>
+    );
 
+
+    scanCount++;
+
+
+    localStorage.setItem(
+        "trace1_scans",
+        scanCount
+    );
+
+
+    if (
+        bestPerson &&
+        bestDistance <= threshold
+    ) {
+
+        const similarity =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    Math.round(
+                        (1 -
+                            bestDistance)
+                        * 100
+                    )
+                )
+            );
+
+
+        recognizedCount++;
+
+
+        localStorage.setItem(
+            "trace1_recognized",
+            recognizedCount
+        );
+
+
+        showResult(
+            "✓ " +
+            bestPerson.name,
+
+            "Face matched with a registered person.",
+
+            similarity,
+
+            true
+        );
+
+
+        addLog(
+            bestPerson.name,
+            source
+        );
+
+    }
+
+    else {
+
+        showResult(
+            "⚠ Unknown Person",
+
+            "No registered face passed the recognition threshold.",
+
+            0,
+
+            false
+        );
+
+
+        addLog(
+            "Unknown",
+            source
+        );
+
+    }
+
+
+    updateStats();
+
+}
+
+
+/* =====================================================
+   RESULT
+===================================================== */
+
+function showResult(
+    name,
+    details,
+    similarity,
+    recognized
+) {
+
+    const resultName =
+        document.getElementById(
+            "resultName"
+        );
+
+
+    resultName.textContent =
+        name;
+
+
+    resultName.className =
+        "result-name " +
+        (
+            recognized
+            ? "recognized"
+            : "unknown"
+        );
+
+
+    document.getElementById(
+        "resultDetails"
+    ).textContent =
+        details;
+
+
+    document.getElementById(
+        "similarityText"
+    ).textContent =
+        similarity + "%";
+
+
+    document.getElementById(
+        "similarityBar"
+    ).style.width =
+        similarity + "%";
+
+}
+
+
+/* =====================================================
+   REGISTER CAMERA FACE
+===================================================== */
+
+document
+    .getElementById(
+        "registerCamera"
+    )
+    .onclick =
+    async function() {
+
+        if (!cameraStream) {
+
+            alert(
+                "Start the camera first."
+            );
+
+            return;
+
+        }
+
+
+        const detection =
+            await faceapi
+            .detectSingleFace(
+                video
+            )
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+
+        if (!detection) {
+
+            alert(
+                "No clear face detected."
+            );
+
+            return;
+
+        }
+
+
+        registerDescriptor(
+            detection.descriptor
+        );
+
+    };
+
+
+/* =====================================================
+   REGISTER FACE
+===================================================== */
+
+function registerDescriptor(
+    descriptor
+) {
+
+    const name =
+        prompt(
+            "Enter the person's name:"
+        );
+
+
+    if (!name)
+        return;
+
+
+    const existing =
+        registeredPeople.find(
+            person =>
+                person.name
+                .toLowerCase()
+                ===
+                name.toLowerCase()
+        );
+
+
+    if (existing) {
+
+        existing.descriptors.push(
+            Array.from(
+                descriptor
+            )
+        );
+
+    }
+
+    else {
+
+        registeredPeople.push({
+
+            name: name,
+
+            descriptors: [
+                Array.from(
+                    descriptor
+                )
+            ]
+
+        });
+
+    }
+
+
+    localStorage.setItem(
+        "trace1_people",
+
+        JSON.stringify(
+            registeredPeople
+        )
+    );
+
+
+    updateStats();
+
+
+    alert(
+        name +
+        " has been registered successfully."
+    );
+
+}
+
+
+/* =====================================================
+   LOG
+===================================================== */
+
+function addLog(
+    person,
+    source
+) {
+
+    const container =
+        document.getElementById(
+            "logContainer"
+        );
+
+
+    const row =
+        document.createElement(
+            "div"
+        );
+
+
+    row.className =
+        "log-row";
+
+
+    row.innerHTML = `
+
+        <span>
+            ${escapeHTML(person)}
+        </span>
+
+        <span>
+            ${escapeHTML(source)}
+        </span>
+
+        <span>
+            ${new Date()
+                .toLocaleTimeString()}
+        </span>
+
+    `;
+
+
+    container.prepend(
+        row
+    );
+
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+function updateStats() {
+
+    document.getElementById(
+        "registeredCount"
+    ).textContent =
+        registeredPeople.length;
+
+
+    document.getElementById(
+        "scanCount"
+    ).textContent =
+        scanCount;
+
+
+    document.getElementById(
+        "recognizedCount"
+    ).textContent =
+        recognizedCount;
+
+}
+
+
+/* =====================================================
+   THRESHOLD
+===================================================== */
+
+document
+    .getElementById(
+        "threshold"
+    )
+    .oninput =
+    function() {
+
+        document.getElementById(
+            "thresholdValue"
+        ).textContent =
+            this.value;
+
+    };
+
+
+/* =====================================================
+   LOCATION SENSOR
+===================================================== */
+
+let locationWatchId =
+    null;
+
+let locationSensorRunning =
+    false;
+
+
+const locationStatus =
+    document.getElementById(
+        "locationStatus"
+    );
+
+const latitudeElement =
+    document.getElementById(
+        "latitude"
+    );
+
+const longitudeElement =
+    document.getElementById(
+        "longitude"
+    );
+
+const accuracyElement =
+    document.getElementById(
+        "accuracy"
+    );
+
+const lastLocationUpdate =
+    document.getElementById(
+        "lastLocationUpdate"
+    );
+
+
+/* =====================================================
+   MAP VARIABLES
+===================================================== */
+
+let traceMap =
+    null;
+
+let locationMarker =
+    null;
+
+let locationAccuracyCircle =
+    null;
+
+
+/* =====================================================
+   INITIALIZE MAP
+===================================================== */
+
+function initializeLocationMap() {
+
+    if (traceMap !== null)
+        return;
+
+
+    traceMap =
+        L.map(
+            "locationMap"
+        ).setView(
+            [0, 0],
+            2
+        );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+
+            maxZoom: 19,
+
+            attribution:
+                "&copy; OpenStreetMap contributors"
+
+        }
+    ).addTo(
+        traceMap
+    );
+
+}
+
+
+/* =====================================================
+   UPDATE MAP
+===================================================== */
+
+function updateLocationMap(
+    latitude,
+    longitude,
+    accuracy
+) {
+
+    initializeLocationMap();
+
+
+    const position = [
+        latitude,
+        longitude
+    ];
+
+
+    if (
+        locationMarker ===
+        null
+    ) {
+
+        locationMarker =
+            L.marker(
+                position
+            ).addTo(
+                traceMap
+            );
+
+
+        locationMarker.bindPopup(
+            "<b>TRACE 1</b><br>Current location"
+        );
+
+
+        locationAccuracyCircle =
+            L.circle(
+                position,
+                {
+                    radius:
+                        accuracy
+                }
+            ).addTo(
+                traceMap
+            );
+
+    }
+
+    else {
+
+        locationMarker.setLatLng(
+            position
+        );
+
+
+        locationAccuracyCircle.setLatLng(
+            position
+        );
+
+
+        locationAccuracyCircle.setRadius(
+            accuracy
+        );
+
+    }
+
+
+    traceMap.setView(
+        position,
+        17
+    );
+
+
+    document.getElementById(
+        "mapStatus"
+    ).textContent =
+        "Location mapped • Accuracy ±" +
+        Math.round(
+            accuracy
+        ) +
+        " metres";
+
+}
+
+
+/* =====================================================
+   LOCATION SUPPORT
+===================================================== */
+
+function locationSupported() {
+
+    return (
+        "geolocation"
+        in navigator
+    );
+
+}
+
+
+/* =====================================================
+   LOCATION STATUS
+===================================================== */
+
+function setLocationStatus(
+    message,
+    type = "normal"
+) {
+
+    locationStatus.textContent =
+        message;
+
+
+    if (
+        type === "success"
+    ) {
+
+        locationStatus.style.color =
+            "#39e58c";
+
+        locationStatus.style.background =
+            "#09251b";
+
+    }
+
+    else if (
+        type === "error"
+    ) {
+
+        locationStatus.style.color =
+            "#ff6675";
+
+        locationStatus.style.background =
+            "#2a1015";
+
+    }
+
+    else {
+
+        locationStatus.style.color =
+            "#8fa8c2";
+
+        locationStatus.style.background =
+            "#071c2e";
+
+    }
+
+}
+
+
+/* =====================================================
+   DISPLAY LOCATION
+===================================================== */
+
+function displayLocation(
+    position
+) {
+
+    const latitude =
+        position.coords.latitude;
+
+    const longitude =
+        position.coords.longitude;
+
+    const accuracy =
+        position.coords.accuracy;
+
+
+    latitudeElement.textContent =
+        latitude.toFixed(
+            6
+        );
+
+
+    longitudeElement.textContent =
+        longitude.toFixed(
+            6
+        );
+
+
+    accuracyElement.textContent =
+        "±" +
+        Math.round(
+            accuracy
+        ) +
+        " m";
+
+
+    const time =
+        new Date(
+            position.timestamp
+        );
+
+
+    lastLocationUpdate.textContent =
+        time.toLocaleTimeString();
+
+
+    updateLocationMap(
+        latitude,
+        longitude,
+        accuracy
+    );
+
+
+    setLocationStatus(
+        "● Location detected",
+        "success"
+    );
+
+}
+
+
+/* =====================================================
+   LOCATION ERROR
+===================================================== */
+
+function handleLocationError(
+    error
+) {
+
+    let message =
+        "Unable to obtain location.";
+
+
+    if (
+        error.code ===
+        error.PERMISSION_DENIED
+    ) {
+
+        message =
+            "Location permission was denied.";
+
+    }
+
+    else if (
+        error.code ===
+        error.POSITION_UNAVAILABLE
+    ) {
+
+        message =
+            "Location information is unavailable.";
+
+    }
+
+    else if (
+        error.code ===
+        error.TIMEOUT
+    ) {
+
+        message =
+            "Location request timed out.";
+
+    }
+
+
+    setLocationStatus(
+        "⚠ " + message,
+        "error"
+    );
+
+
+    console.error(
+        "Trace 1 location error:",
+        error
+    );
+
+}
+
+
+/* =====================================================
+   GET LOCATION
+===================================================== */
+
+function getCurrentLocation() {
+
+    if (
+        !locationSupported()
+    ) {
+
+        setLocationStatus(
+            "⚠ Geolocation is not supported.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    setLocationStatus(
+        "⟳ Requesting location permission...",
+        "normal"
+    );
+
+
+    navigator.geolocation
+        .getCurrentPosition(
+
+        function(position) {
+
+            displayLocation(
+                position
+            );
+
+        },
+
+        function(error) {
+
+            handleLocationError(
+                error
+            );
+
+        },
+
+        {
+
+            enableHighAccuracy:
+                true,
+
+            timeout:
+                15000,
+
+            maximumAge:
+                0
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   START LOCATION SENSOR
+===================================================== */
+
+function startLocationSensor() {
+
+    if (
+        !locationSupported()
+    ) {
+
+        setLocationStatus(
+            "⚠ Geolocation is not supported.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        locationSensorRunning
+    ) {
+
+        return;
+
+    }
+
+
+    setLocationStatus(
+        "⟳ Starting location sensor...",
+        "normal"
+    );
+
+
+    locationWatchId =
+        navigator.geolocation
+        .watchPosition(
+
+        function(position) {
+
+            displayLocation(
+                position
+            );
+
+        },
+
+        function(error) {
+
+            handleLocationError(
+                error
+            );
+
+        },
+
+        {
+
+            enableHighAccuracy:
+                true,
+
+            timeout:
+                15000,
+
+            maximumAge:
+                5000
+
+        }
+
+    );
+
+
+    locationSensorRunning =
+        true;
+
+
+    setLocationStatus(
+        "● Location sensor running",
+        "success"
+    );
+
+}
+
+
+/* =====================================================
+   STOP LOCATION SENSOR
+===================================================== */
+
+function stopLocationSensor() {
+
+    if (
+        locationWatchId !== null
+    ) {
+
+        navigator.geolocation
+            .clearWatch(
+                locationWatchId
+            );
+
+        locationWatchId =
+            null;
+
+    }
+
+
+    locationSensorRunning =
+        false;
+
+
+    setLocationStatus(
+        "● Location sensor stopped.",
+        "normal"
+    );
+
+}
+
+
+/* =====================================================
+   LOCATION BUTTONS
+===================================================== */
+
+document
+    .getElementById(
+        "getLocation"
+    )
+    .onclick =
+    getCurrentLocation;
+
+
+document
+    .getElementById(
+        "startLocationSensor"
+    )
+    .onclick =
+    startLocationSensor;
+
+
+document
+    .getElementById(
+        "stopLocationSensor"
+    )
+    .onclick =
+    stopLocationSensor;
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+    text
+) {
+
+    return String(text)
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+updateStats();
+
+
+initializeLocationMap();
+
+
+if (
+    !locationSupported()
+) {
+
+    setLocationStatus(
+        "⚠ Browser location is not supported.",
+        "error"
+    );
+
+}
+
+</script>
+
+</body>
 </html>
